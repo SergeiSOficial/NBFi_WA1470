@@ -4,7 +4,7 @@
 #define NBFI_REV							5
 #define NBFI_SUBREV							0
 
-//#define NBFI_NO_CRYPTO
+#define NBFI_NO_CRYPTO
 
 #define NBFI_LOG
 

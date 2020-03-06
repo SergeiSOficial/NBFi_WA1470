@@ -62,7 +62,7 @@
 const nbfi_settings_t nbfi_set_default =
 {
     CRX,//mode;
-    UL_DBPSK_50_PROT_D,//UL_DBPSK_50_PROT_D, // tx_phy_channel;
+    UL_DBPSK_50_PROT_E,//UL_DBPSK_50_PROT_D, // tx_phy_channel;
     DL_DBPSK_3200_PROT_D, // rx_phy_channel;
     HANDSHAKE_NONE,
     MACK_1,             //mack_mode
@@ -82,7 +82,7 @@ const nbfi_settings_t nbfi_set_default =
     NBFI_FLG_FIXED_BAUD_RATE,                  //additional_flags
     NBFI_UL_FREQ_BASE,
     NBFI_DL_FREQ_BASE,
-    NBFI_FREQ_PLAN_DEFAULT//NBFI_FREQ_PLAN_SHIFTED_HIGHPHY
+    NBFI_UL_FREQ_PLAN_51200_0 + NBFI_FREQ_PLAN_MINIMAL
 };
 #else
 

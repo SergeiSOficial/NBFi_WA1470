@@ -42,18 +42,18 @@ static uint32_t NBFi_MAC_get_UL_freq(uint16_t lastcrc, _Bool parity)
 	{
 	case UL_DBPSK_50_PROT_D:
         case UL_DBPSK_400_PROT_D:
-                ul_freq = nbfi.ul_freq_base + (((*((const uint32_t*)FULL_ID)+lastcrc)%226)*100);
-		if(parity) ul_freq = ul_freq + 27500;
+                ul_freq = nbfi.ul_freq_base + (((*((const uint32_t*)FULL_ID)+lastcrc)%226)*100) - 25000;
+		if(parity) ul_freq = ul_freq + 27500;              
                 break;
           //case UL_DBPSK_3200_PROT_E:
 	case UL_DBPSK_3200_PROT_D:
-		ul_freq = nbfi.ul_freq_base + 1600 + (((*((const uint32_t*)FULL_ID)+lastcrc)%210)*100);
+		ul_freq = nbfi.ul_freq_base + 1600 + (((*((const uint32_t*)FULL_ID)+lastcrc)%210)*100)  - 25000;
 		if(parity) ul_freq = ul_freq + 27500 - 1600;
 	//	if(nbfi.freq_plan == NBFI_FREQ_PLAN_SHIFTED_HIGHPHY) tx_freq -= 51200;
 		break;
 	//case UL_DBPSK_25600_PROT_E:
 	case UL_DBPSK_25600_PROT_D:
-		ul_freq = nbfi.ul_freq_base + 25600;// + 12800;// + (((*((const uint32_t*)FULL_ID)+lastcrc8)%210)*100);
+		ul_freq = nbfi.ul_freq_base + 25600 - 25000;// + 12800;// + (((*((const uint32_t*)FULL_ID)+lastcrc8)%210)*100);
 		//if(parity) tx_freq = tx_freq + 25600;
 	//	if(nbfi.freq_plan == NBFI_FREQ_PLAN_SHIFTED_HIGHPHY) tx_freq -= 51200;
 		break;
@@ -176,14 +176,14 @@ nbfi_status_t NBFi_MAC_TX_ProtocolD(nbfi_transport_packet_t* pkt)
 	if(nbfi.tx_freq)
 	{
 		tx_freq = nbfi.tx_freq ;
-		parity = (nbfi.tx_freq > (nbfi.ul_freq_base));
+		//parity = (nbfi.tx_freq > (nbfi.ul_freq_base));
 	}
 	else
 		tx_freq = NBFi_MAC_get_UL_freq(lastcrc8, parity);
 
 	if((nbfi.tx_phy_channel < UL_DBPSK_3200_PROT_D) && !downlink)
 	{
-		ZCODE_Append(&ul_buf[4], &ul_buf[len], parity);
+		ZCODE_Append(&ul_buf[4], &ul_buf[len], (tx_freq > (nbfi.ul_freq_base)));
 	}
 	else
 	{

@@ -2,7 +2,7 @@
 #define _DEFINES_H
 
 //#define PLOT_SPECTRUM
-#define BANKA
+//#define BANKA
 
 //#define PHOBOS_EXT_MODULE
 

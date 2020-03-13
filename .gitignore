@@ -4,3 +4,7 @@ settings/
 sample/Release/
 *.dep
 stm32l0x/ChipTestBoard/Debug/Exe/
+
+stm32l0x/ChipTestBoard/Debug/Obj/
+
+stm32l0x/ChipTestBoard/Debug/List/

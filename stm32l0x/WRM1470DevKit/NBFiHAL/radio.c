@@ -1,4 +1,3 @@
-#include <stm32l0xx_hal.h>
 #include "defines.h"
 #include "radio.h"
 

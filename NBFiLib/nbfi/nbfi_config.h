@@ -22,7 +22,6 @@
 #define NBFI_PARAM_UL_BASE_FREQ         0x0D
 #define NBFI_PARAM_DL_BASE_FREQ         0x0E
 #define NBFI_PARAM_QUALITY_EX           0x0F
-#define NBFI_PARAM_BROADCAST_ADD        0x10
 #define NBFI_PARAM_APP_IDS              0x11
 #define NBFI_PARAM_BSANDSERVER_IDS      0x12
 #define NBFI_PARAM_FPLAN                0x13
@@ -86,6 +85,8 @@ extern _Bool nbfi_settings_need_to_save_to_flash;
 #define FULL_ID     ((uint8_t*)(nbfi.modem_id))
 
 extern NBFi_station_info_s nbfi_station_info;
+
+extern uint8_t try_counter;
 
 void    NBFI_Config_Check_State();
 _Bool   NBFi_Config_Tx_Power_Change(nbfi_rate_direct_t dir);

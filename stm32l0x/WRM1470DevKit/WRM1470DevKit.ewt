@@ -2459,6 +2459,12 @@
           <name>$PROJ_DIR$\Drivers\STM32L0xx_HAL_Driver\Inc\stm32l0xx_hal_rcc_ex.h</name>
         </file>
         <file>
+          <name>$PROJ_DIR$\Drivers\STM32L0xx_HAL_Driver\Inc\stm32l0xx_hal_rtc.h</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\Drivers\STM32L0xx_HAL_Driver\Inc\stm32l0xx_hal_rtc_ex.h</name>
+        </file>
+        <file>
           <name>$PROJ_DIR$\Drivers\STM32L0xx_HAL_Driver\Inc\stm32l0xx_hal_spi.h</name>
         </file>
         <file>
@@ -2534,6 +2540,12 @@
           <name>$PROJ_DIR$\Drivers\STM32L0xx_HAL_Driver\Src\stm32l0xx_hal_rcc_ex.c</name>
         </file>
         <file>
+          <name>$PROJ_DIR$\Drivers\STM32L0xx_HAL_Driver\Src\stm32l0xx_hal_rtc.c</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\Drivers\STM32L0xx_HAL_Driver\Src\stm32l0xx_hal_rtc_ex.c</name>
+        </file>
+        <file>
           <name>$PROJ_DIR$\Drivers\STM32L0xx_HAL_Driver\Src\stm32l0xx_hal_spi.c</name>
         </file>
         <file>
@@ -2602,6 +2614,9 @@
       <name>$PROJ_DIR$\Inc\adc.h</name>
     </file>
     <file>
+      <name>$PROJ_DIR$\Inc\at_user.h</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\Inc\defines.h</name>
     </file>
     <file>
@@ -2615,6 +2630,9 @@
     </file>
     <file>
       <name>$PROJ_DIR$\Inc\rs485_uart.h</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\Inc\rtc.h</name>
     </file>
     <file>
       <name>$PROJ_DIR$\Inc\stm32_init.h</name>
@@ -2848,6 +2866,9 @@
       <name>$PROJ_DIR$\Src\adc.c</name>
     </file>
     <file>
+      <name>$PROJ_DIR$\Src\at_user.c</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\Src\log.c</name>
     </file>
     <file>
@@ -2858,6 +2879,9 @@
     </file>
     <file>
       <name>$PROJ_DIR$\Src\rs485_uart.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\Src\rtc.c</name>
     </file>
     <file>
       <name>$PROJ_DIR$\Src\stm32_init.c</name>

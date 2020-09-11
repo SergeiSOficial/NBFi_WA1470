@@ -80,7 +80,23 @@ void  NBFI_Main_Level_Loop()
      if(nbfi_settings_need_to_save_to_flash && (nbfi_hal->__nbfi_write_flash_settings != 0)) 
      {
         nbfi_hal->__nbfi_lock_unlock_loop_irq(NBFI_LOCK);
+        nbfi_phy_channel_t tmp_tx_phy = nbfi.tx_phy_channel;
+        nbfi_phy_channel_t tmp_rx_phy = nbfi.rx_phy_channel;
+
+        nbfi_settings_t default_nbfi_settings;
+        nbfi_hal->__nbfi_read_default_settings(&default_nbfi_settings);
+          
+        if(!nbfi.additional_flags&NBFI_FLG_FIXED_BAUD_RATE) //if auto bitrates
+        {
+          nbfi.rx_phy_channel = default_nbfi_settings.rx_phy_channel;
+          nbfi.tx_phy_channel = default_nbfi_settings.tx_phy_channel;
+        }
+        
+        nbfi.nbfi_freq_plan = default_nbfi_settings.nbfi_freq_plan;
+        
         nbfi_hal->__nbfi_write_flash_settings(&nbfi);
+        nbfi.tx_phy_channel = tmp_tx_phy;
+        nbfi.rx_phy_channel = tmp_rx_phy;      
         nbfi_settings_need_to_save_to_flash = 0;
         nbfi_hal->__nbfi_lock_unlock_loop_irq(NBFI_UNLOCK);
      }
@@ -194,10 +210,34 @@ void NBFi_get_Settings(nbfi_settings_t* settings)
     nbfi_hal->__nbfi_lock_unlock_loop_irq(NBFI_UNLOCK);
 }
 
-void NBFi_set_Settings(nbfi_settings_t* settings)
+void NBFi_set_Settings(nbfi_settings_t* settings, _Bool persistent)
 {
+    _Bool need_to_send_sync = 0;
+    _Bool need_to_send_ul_freq_base = 0;
+    _Bool need_to_send_dl_freq_base = 0;
+    
     nbfi_hal->__nbfi_lock_unlock_loop_irq(NBFI_LOCK);
-    memcpy(&nbfi, settings , sizeof(nbfi_settings_t));
+    
+    if(persistent)
+    {
+      if(nbfi.rx_phy_channel != settings->rx_phy_channel) need_to_send_sync = 1;
+      if(nbfi.ul_freq_base != settings->ul_freq_base) need_to_send_ul_freq_base = 1;
+      if(nbfi.dl_freq_base != settings->dl_freq_base) need_to_send_dl_freq_base = 1;    
+      if(nbfi.mode != settings->mode) 
+      {
+        NBFi_Clear_TX_Buffer();
+        need_to_send_sync = 1;
+      }
+      memcpy(&nbfi, settings , sizeof(nbfi_settings_t));
+      nbfi_settings_need_to_save_to_flash = 1;
+      rf_state = STATE_CHANGED;
+      if(need_to_send_sync) {NBFi_Config_Send_Sync(0); NBFi_Force_process();}
+      if(need_to_send_ul_freq_base)  NBFi_Config_Send_Mode(HANDSHAKE_NONE, NBFI_PARAM_UL_BASE_FREQ);
+      if(need_to_send_dl_freq_base)  NBFi_Config_Send_Mode(HANDSHAKE_NONE, NBFI_PARAM_DL_BASE_FREQ);
+    
+    }
+    else memcpy(&nbfi, settings , sizeof(nbfi_settings_t));
+   
     nbfi_hal->__nbfi_lock_unlock_loop_irq(NBFI_UNLOCK);
 }
 
@@ -218,7 +258,7 @@ void NBFi_clear_Saved_Configuration()
 	nbfi_hal->__nbfi_write_flash_settings(&empty);
 }
         
-void NBFi_switch_to_another_settings(nbfi_settings_t* settings, nbfi_crypto_iterator_t* it, _Bool to_or_from)
+void NBFi_switch_to_custom_settings(nbfi_settings_t* settings, nbfi_crypto_iterator_t* it, _Bool to_or_from)
 {
     static nbfi_settings_t old_settings;
     static nbfi_crypto_iterator_t old_iter;
@@ -227,6 +267,13 @@ void NBFi_switch_to_another_settings(nbfi_settings_t* settings, nbfi_crypto_iter
    
     if(to_or_from)
     {
+	  if(switched_to_custom_settings) 
+	  {
+		//if trying to switch to custom settings but have not switched off before 
+		nbfi_hal->__nbfi_lock_unlock_loop_irq(NBFI_UNLOCK);
+		return ;
+	  }
+	  
       memcpy(&old_settings, &nbfi, sizeof(nbfi_settings_t));
       memcpy(&state, &nbfi_state, sizeof(nbfi_state_t));
       old_iter = nbfi_iter;
@@ -234,8 +281,14 @@ void NBFi_switch_to_another_settings(nbfi_settings_t* settings, nbfi_crypto_iter
            
       memcpy(&nbfi, settings, sizeof(nbfi_settings_t));
       nbfi_iter = *it;
+	  NBFi_Crypto_Save_Restore_All_KEYs(1);
+	  
+	  if(nbfi.master_key != 0)
+      {
+      	NBFi_Crypto_Set_KEY(nbfi.master_key, &nbfi_iter.ul, &nbfi_iter.dl);
+      }
     }
-    else
+    else if(switched_to_custom_settings)
     {
         NBFi_Clear_TX_Buffer();
         memcpy(&nbfi_state, &state, sizeof(nbfi_state_t));
@@ -244,12 +297,16 @@ void NBFi_switch_to_another_settings(nbfi_settings_t* settings, nbfi_crypto_iter
         NBFi_Config_Set_TX_Chan(old_settings.tx_phy_channel);
         NBFi_Config_Set_RX_Chan(old_settings.rx_phy_channel);
         rf_state = STATE_CHANGED;
+		NBFi_Crypto_Save_Restore_All_KEYs(0);
     }
+	else
+	{
+		//if trying to return from custom settings but have not switched to it before 
+		nbfi_hal->__nbfi_lock_unlock_loop_irq(NBFI_UNLOCK);
+		return ;
+	}
 
-    if(nbfi.master_key != 0)
-    {
-      NBFi_Crypto_Set_KEY(nbfi.master_key, &nbfi_iter.ul, &nbfi_iter.dl);
-    }
+
     
     if(rf_state == STATE_RX) NBFi_MAC_RX();
     
